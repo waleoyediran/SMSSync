@@ -1,3 +1,9 @@
+
+#Sway SMS Sync
+This fork of SMSSync adds Google Directions API search to SMS processing
+Sway implemented this for the Andela Hackathon
+Read about it at **[sway.intelworx.com/doc](http://sway.intelworx.com/doc/)**.
+
 [![Build Status](https://travis-ci.org/ushahidi/SMSSync.png?branch=develop)](https://travis-ci.org/ushahidi/SMSSync)
 
 # SMSSync
