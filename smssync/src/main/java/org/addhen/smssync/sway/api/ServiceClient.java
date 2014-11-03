@@ -12,7 +12,8 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import com.sway.sway.util.AppConstants;
+
+import org.addhen.smssync.sway.util.AppConstants;
 
 import java.lang.reflect.Type;
 import java.util.Date;
@@ -35,6 +36,8 @@ public class ServiceClient {
     private String swayURL = AppConstants.SWAY_BASE;
 
     Gson gson;
+    private RestAdapter swayRestAdapter;
+    private Map<String, Object> swayClients = new HashMap<String, Object>();
 
     private ServiceClient() {
         gson = new GsonBuilder()
@@ -82,18 +85,18 @@ public class ServiceClient {
 
     @SuppressWarnings("unchecked")
     public <T> T getSwayClient(Context context, Class<T> clazz) {
-        if (mRestAdapter == null) {
-            mRestAdapter = new RestAdapter.Builder()
+        if (swayRestAdapter == null) {
+            swayRestAdapter = new RestAdapter.Builder()
                     .setEndpoint(getSwayURL(context))
                     .setConverter(new GsonConverter(gson))
                     .build();
         }
         T client = null;
-        if ((client = (T) mClients.get(clazz.getCanonicalName())) != null) {
+        if ((client = (T) swayClients.get(clazz.getCanonicalName())) != null) {
             return client;
         }
-        client = mRestAdapter.create(clazz);
-        mClients.put(clazz.getCanonicalName(), client);
+        client = swayRestAdapter.create(clazz);
+        swayClients.put(clazz.getCanonicalName(), client);
         return client;
     }
 
@@ -110,4 +113,5 @@ public class ServiceClient {
         // TODO: switch base url by some sort of settings logic
         return swayURL;
     }
+
 }

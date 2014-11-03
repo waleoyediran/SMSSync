@@ -25,9 +25,15 @@ import org.addhen.smssync.R;
 import org.addhen.smssync.controllers.DebugCallbacks;
 import org.addhen.smssync.messages.ProcessMessage;
 import org.addhen.smssync.messages.ProcessSms;
+import org.addhen.smssync.sway.api.ServiceClient;
+import org.addhen.smssync.sway.api.SwayExtServices;
+import org.addhen.smssync.sway.model.DirectionResult;
+import org.addhen.smssync.sway.util.Utility;
 import org.addhen.smssync.util.Logger;
 import org.addhen.smssync.util.ServicesConstants;
 import org.addhen.smssync.util.Util;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import android.app.Service;
 import android.content.Context;
@@ -44,6 +50,9 @@ import android.os.Process;
 import android.telephony.SmsMessage;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class SmsReceiverService extends Service {
 
@@ -191,7 +200,13 @@ public class SmsReceiverService extends Service {
                     }
                     body = bodyText.toString();
                 }
-                msg.setBody(body);
+
+
+
+
+
+
+                msg.setBody(getJSONMsg(body, sms.getOriginatingAddress()));
                 msg.setUuid(new ProcessSms(mContext).getUuid());
             }
         }
@@ -217,6 +232,41 @@ public class SmsReceiverService extends Service {
             statusIntent.putExtra("sentstatus", 0);
             sendBroadcast(statusIntent);
         }
+    }
+
+    private String getJSONMsg(String textMessage, String phoneNumber){
+//        String textMessage = msg;
+        String[] originDest = textMessage.split(" to ");
+
+        if (originDest.length < 2){
+            // Discarsd
+            return "{}";
+        }
+
+        SwayExtServices swayClient = ServiceClient.getInstance().getGoogleClient(getApplicationContext(),
+                SwayExtServices.class);
+        HashMap<String, String> options = new HashMap<String, String>();
+        options.put("origin", originDest[0]);
+        options.put("destination", originDest[1]);
+        options.put("sensor", "false");
+
+        try{
+            DirectionResult directionsSync = swayClient.getDirectionsSync(options);
+            List<String> roadTags = Utility.getRoadsFromWayPoints(directionsSync);
+
+            JSONArray roadArr = new JSONArray(roadTags);
+
+            JSONObject obj = new JSONObject();
+            obj.put("phone_number", phoneNumber);
+            obj.put("roads", roadArr);
+            obj.put("est_time", 3600);
+
+            return obj.toString();
+        } catch (Exception ex){
+
+            return "{}";
+        }
+
     }
 
     /**

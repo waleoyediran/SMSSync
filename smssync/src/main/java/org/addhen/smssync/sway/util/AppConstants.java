@@ -5,7 +5,7 @@ package org.addhen.smssync.sway.util;
  */
 public class AppConstants {
 
-    public static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api";
+    public static final String PLACES_API_BASE = "http://maps.googleapis.com/maps/api";
 
     public static final String SWAY_BASE = "***";
 

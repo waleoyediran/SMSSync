@@ -11,6 +11,9 @@ import org.addhen.smssync.models.SyncUrl;
 import org.addhen.smssync.models.TaskMessage;
 import org.addhen.smssync.net.MainHttpClient;
 import org.addhen.smssync.net.MessageSyncHttpClient;
+import org.addhen.smssync.sway.api.ServiceClient;
+import org.addhen.smssync.sway.api.SwayExtServices;
+import org.addhen.smssync.sway.model.DirectionResult;
 import org.addhen.smssync.util.JsonUtils;
 import org.addhen.smssync.util.Logger;
 import org.addhen.smssync.util.Util;
@@ -19,12 +22,21 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.content.Intent;
 import android.text.TextUtils;
+import android.util.Log;
+import android.view.inputmethod.InputMethodManager;
 
 import com.google.gson.reflect.TypeToken;
 
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 import static org.addhen.smssync.messages.ProcessSms.PENDING;
 
@@ -76,6 +88,7 @@ public class ProcessMessage {
         Logger.log(TAG, "syncReceivedSms(): Post received SMS to configured URL:" +
                 message.toString() + " SyncUrlFragment: " + syncUrl.toString());
         Prefs.loadPreferences(context);
+
 
         MessageSyncHttpClient client = new MessageSyncHttpClient(
                 context, syncUrl, message, Util.getPhoneNumber(context), Prefs.uniqueId
